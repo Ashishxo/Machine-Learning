@@ -29,16 +29,52 @@ def gradient(x, y, w, b):
     return dj_dw, dj_db
 
 
-def gradient_descent(x, y, w, b, alpha, iterations, gradient_function):
+def gradient_descent(x, y, w_in, b_in, alpha, num_iters, cost_function, gradient_function): 
+    """
+    Performs gradient descent to fit w,b. Updates w,b by taking 
+    num_iters gradient steps with learning rate alpha
+    
+    Args:
+      x (ndarray (m,))  : Data, m examples 
+      y (ndarray (m,))  : target values
+      w_in,b_in (scalar): initial values of model parameters  
+      alpha (float):     Learning rate
+      num_iters (int):   number of iterations to run gradient descent
+      cost_function:     function to call to produce cost
+      gradient_function: function to call to produce gradient
+      
+    Returns:
+      w (scalar): Updated value of parameter after running gradient descent
+      b (scalar): Updated value of parameter after running gradient descent
+      J_history (List): History of cost values
+      p_history (list): History of parameters [w,b] 
+      """
+    
+    # An array to store cost J and w's at each iteration primarily for graphing later
+    J_history = []
+    p_history = []
+    b = b_in
+    w = w_in
+    
+    for i in range(num_iters):
+        # Calculate the gradient and update the parameters using gradient_function
+        dj_dw, dj_db = gradient_function(x, y, w , b)     
 
-    for i in range(iterations):
-        dj_dw, dj_db = gradient_function(x, y, w, b)
-        
-        w = w - alpha * dj_dw
-        b = b - alpha * dj_db
+        # Update Parameters using equation (3) above
+        b = b - alpha * dj_db                            
+        w = w - alpha * dj_dw                            
 
-    return w, b
-
+        # Save cost J at each iteration
+        if i<100000:      # prevent resource exhaustion 
+            J_history.append( cost_function(x, y, w , b))
+            p_history.append([w,b])
+        # Print cost every at intervals 10 times or as many iterations if < 10
+        if i% math.ceil(num_iters/10) == 0:
+            print(f"Iteration {i}: Cost {J_history[i]} ",
+                  f"dj_dw: {dj_dw}, dj_db: {dj_db}  ",
+                  f"w: {w}, b:{b}")
+ 
+    return w, b, J_history, p_history
 
 
 x_train = np.array([1.0, 2.0])
@@ -47,7 +83,7 @@ y_train = np.array([300.0, 500.0])
 w = 100
 b = 100
 
-w_final, b_final = gradient_descent(x_train, y_train, w, b, 0.01, 10000, gradient)
+w_final, b_final, jHist, pHist = gradient_descent(x_train, y_train, w, b, 0.01, 100000, compute_cost, gradient)
 
 print(w_final)
 print(b_final)
