@@ -16,17 +16,17 @@ def compute_cost(x, y, w, b):
 
 def gradient(x, y, w, b):
     m = x.shape[0]
-    dj_dw = 0
-    dj_db = 0
+    d_djw = 0
+    d_djb = 0
 
     for i in range(m):
-        dj_dw += ((w * x[i] + b) - y[i]) * x[i]
-        dj_db += (w * x[i] + b) - y[i]
+        d_djw += ((w*x[i]+b) - y[i]) * x[i]
+        d_djb += (w*x[i]+b) - y[i]
 
-    dj_dw /= m
-    dj_db /= m
+    d_djb /= m
+    d_djw /= m
 
-    return dj_dw, dj_db
+    return d_djw, d_djb
 
 
 def gradient_descent(x, y, w_in, b_in, alpha, num_iters, cost_function, gradient_function): 
@@ -52,7 +52,7 @@ def gradient_descent(x, y, w_in, b_in, alpha, num_iters, cost_function, gradient
     
     # An array to store cost J and w's at each iteration primarily for graphing later
     J_history = []
-    p_history = []
+    i_history = []
     b = b_in
     w = w_in
     
@@ -67,14 +67,14 @@ def gradient_descent(x, y, w_in, b_in, alpha, num_iters, cost_function, gradient
         # Save cost J at each iteration
         if i<100000:      # prevent resource exhaustion 
             J_history.append( cost_function(x, y, w , b))
-            p_history.append([w,b])
+            i_history.append(i)
         # Print cost every at intervals 10 times or as many iterations if < 10
         if i% math.ceil(num_iters/10) == 0:
             print(f"Iteration {i}: Cost {J_history[i]} ",
                   f"dj_dw: {dj_dw}, dj_db: {dj_db}  ",
                   f"w: {w}, b:{b}")
  
-    return w, b, J_history, p_history
+    return w, b, J_history, i_history
 
 
 x_train = np.array([1.0, 2.0])
@@ -83,7 +83,13 @@ y_train = np.array([300.0, 500.0])
 w = 100
 b = 100
 
-w_final, b_final, jHist, pHist = gradient_descent(x_train, y_train, w, b, 0.01, 100000, compute_cost, gradient)
+w_final, b_final, jHist, iHist = gradient_descent(x_train, y_train, w, b, 0.01, 10000, compute_cost, gradient)
+
+
+plt.plot(iHist, jHist, c='r')
+plt.xlabel("Iterations")
+plt.ylabel("Cost")
+plt.show()
 
 print(w_final)
 print(b_final)
